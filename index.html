@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PAGASKA — Birthday Card Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #ffd700;
+      --gold-dark: #b8860b;
+      --gold-deep: #7a5500;
+      --red: #cc2222;
+      --bg: #08080e;
+      --surface: #111118;
+      --text: #e8e0d0;
+      --muted: #888;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Lato', sans-serif; min-height: 100vh; }
+
+    header {
+      text-align: center; padding: 40px 20px 24px;
+      border-bottom: 1px solid var(--gold-deep); position: relative;
+    }
+    header::before {
+      content: ''; position: absolute; bottom: -3px; left: 5%; right: 5%;
+      height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    header h1 { font-family: 'Cinzel', serif; font-size: clamp(1.4rem, 4vw, 2.2rem); letter-spacing: 0.3em; color: var(--gold); text-shadow: 0 0 20px rgba(255,215,0,0.4); }
+    header p { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--muted); letter-spacing: 0.1em; margin-top: 6px; font-style: italic; }
+
+    .app { max-width: 1100px; margin: 0 auto; padding: 40px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    @media (max-width: 768px) { .app { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--surface); border: 1px solid var(--gold-deep); border-radius: 12px; padding: 28px; position: relative; }
+    .panel::before { content: ''; position: absolute; inset: 3px; border-radius: 10px; border: 1px solid rgba(122,85,0,0.3); pointer-events: none; }
+    .panel-title { font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.25em; color: var(--gold); margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+    .panel-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-deep), transparent); }
+
+    .field { margin-bottom: 20px; }
+    .field label { display: block; font-size: 0.75rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+    .field input, .field select { width: 100%; background: rgba(255,215,0,0.03); border: 1px solid var(--gold-deep); border-radius: 6px; padding: 10px 14px; color: var(--text); font-family: 'Lato', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .field input:focus, .field select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255,215,0,0.1); }
+    .field select option { background: #111; }
+
+    .upload-zone { border: 2px dashed var(--gold-deep); border-radius: 8px; padding: 28px 20px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; overflow: hidden; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--gold); background: rgba(255,215,0,0.04); }
+    .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-zone .icon { font-size: 2rem; margin-bottom: 8px; }
+    .upload-zone p { font-size: 0.8rem; color: var(--muted); }
+    .upload-zone .preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 6px; display: none; }
+    .upload-zone.has-image .preview { display: block; }
+    .upload-zone.has-image .placeholder { display: none; }
+
+    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.2em; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+    .btn-gold { background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-dark)); color: #1a0a00; font-weight: 700; box-shadow: 0 4px 20px rgba(255,215,0,0.2); }
+    .btn-gold:hover:not(:disabled) { box-shadow: 0 4px 30px rgba(255,215,0,0.4); transform: translateY(-1px); }
+    .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: transparent; border: 1px solid var(--gold-deep); color: var(--gold); }
+    .btn-outline:hover { border-color: var(--gold); background: rgba(255,215,0,0.05); }
+
+    .status { font-size: 0.78rem; text-align: center; color: var(--muted); margin-top: 12px; min-height: 20px; font-family: 'Playfair Display', serif; font-style: italic; }
+    .status.loading { color: var(--gold); animation: pulse 1.5s ease-in-out infinite; }
+    .status.error { color: #ff6666; }
+    .status.success { color: #66ff99; }
+    @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
+
+    .preview-panel { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
+    .canvas-wrap { background: #000; border: 1px solid var(--gold-deep); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    canvas { width: 100%; height: auto; display: block; }
+    .canvas-placeholder { padding: 60px 20px; text-align: center; }
+    .canvas-placeholder .icon { font-size: 3rem; opacity: 0.3; }
+    .canvas-placeholder p { font-family: 'Playfair Display', serif; font-style: italic; color: var(--muted); margin-top: 12px; font-size: 0.9rem; }
+
+    .api-note { background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 8px; padding: 14px 16px; font-size: 0.78rem; color: #bbb; line-height: 1.6; }
+    .api-note strong { color: var(--gold); }
+
+    footer { text-align: center; padding: 30px; border-top: 1px solid rgba(122,85,0,0.3); font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--gold-dark); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>✦ PAGASKA ✦</h1>
+  <p>Paskibra Gala Taksaka · Birthday Card Generator</p>
+</header>
+
+<div class="app">
+  <div>
+    <div class="panel">
+      <div class="panel-title">⚙ Pengaturan Kartu</div>
+
+      <div class="field">
+        <label>Foto Anggota</label>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="photoInput" accept="image/*"/>
+          <div class="placeholder">
+            <div class="icon">📷</div>
+            <p>Klik atau drag foto ke sini</p>
+          </div>
+          <img class="preview" id="photoPreview" alt="Preview"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Nama Lengkap</label>
+        <input type="text" id="namaInput" placeholder="contoh: Ahmad Fauzi" maxlength="40"/>
+      </div>
+
+      <div class="field">
+        <label>Jabatan</label>
+        <input type="text" id="jabatanInput" placeholder="contoh: Komandan Upacara" maxlength="40"/>
+      </div>
+
+      <div class="field">
+        <label>Generasi</label>
+        <select id="generasiInput">
+          <option value="1">Generasi 1</option>
+          <option value="2">Generasi 2</option>
+          <option value="3">Generasi 3</option>
+          <option value="4">Generasi 4</option>
+          <option value="5">Generasi 5</option>
+          <option value="6">Generasi 6</option>
+          <option value="7">Generasi 7</option>
+          <option value="8">Generasi 8</option>
+          <option value="9">Generasi 9</option>
+          <option value="10" selected>Generasi 10</option>
+          <option value="11">Generasi 11</option>
+          <option value="12">Generasi 12</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Tanggal Lahir</label>
+        <input type="date" id="tglLahirInput"/>
+      </div>
+
+      <div class="field">
+        <label>Anthropic API Key (untuk ucapan AI)</label>
+        <input type="password" id="apiKey" placeholder="sk-ant-..."/>
+      </div>
+
+      <div class="api-note">
+        <strong>Catatan:</strong> API Key hanya dipakai di browser kamu, tidak dikirim ke server mana pun. Dapatkan key di <strong>console.anthropic.com</strong>. Tanpa key, ucapan pakai teks default.
+      </div>
+
+      <button class="btn btn-gold" id="generateBtn" onclick="generateCard()">
+        🎂 Generate Kartu
+      </button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <div class="preview-panel">
+    <div class="panel-title" style="font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:.25em;color:var(--gold);display:flex;align-items:center;gap:10px;">
+      Preview
+      <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--gold-deep),transparent);display:block;"></span>
+    </div>
+    <div class="canvas-wrap" id="canvasWrap">
+      <div class="canvas-placeholder">
+        <div class="icon">🎴</div>
+        <p>Isi form lalu klik Generate<br/>untuk melihat kartu</p>
+      </div>
+    </div>
+    <button class="btn btn-outline" id="downloadBtn" onclick="downloadCard()" style="display:none">
+      ⬇ Download PNG
+    </button>
+  </div>
+</div>
+
+<footer>✦ PAGASKA · Paskibra Gala Taksaka ✦</footer>
+
+<script>
+// ─── GLOBALS ─────────────────────────────────────────────────────────────────
+let userPhoto = null;
+let currentCanvas = null;
+const KAK_URL    = 'kak.png';
+const DOKTER_URL = 'dokter.png';
+
+// ─── UPLOAD ──────────────────────────────────────────────────────────────────
+const uploadZone   = document.getElementById('uploadZone');
+const photoInput   = document.getElementById('photoInput');
+const photoPreview = document.getElementById('photoPreview');
+
+photoInput.addEventListener('change', e => { if (e.target.files[0]) loadPhoto(e.target.files[0]); });
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadPhoto(f);
+});
+function loadPhoto(file) {
+  const r = new FileReader();
+  r.onload = e => { userPhoto = e.target.result; photoPreview.src = userPhoto; uploadZone.classList.add('has-image'); };
+  r.readAsDataURL(file);
+}
+
+// ─── PERSONA SYSTEM PROMPTS ───────────────────────────────────────────────────
+function buildKakSystemPrompt() {
+  const now = new Date();
+  const tgl = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:'Asia/Jakarta' });
+  const jam = now.toLocaleTimeString('id-ID', { timeZone:'Asia/Jakarta' });
+  return `Kamu adalah Kak Taksaka, asisten AI santai dan friendly milik Paskibra Gala Taksaka SMKN 5 Kota Madiun (Pagaska).
+
+IDENTITAS:
+- Nama: Kak Taksaka
+- Organisasi: Pagaska — Paskibra Gala Taksaka SMKN 5 Kota Madiun, Jawa Timur
+- Waktu sekarang: ${tgl}, pukul ${jam} WIB
+
+KEPRIBADIAN:
+- Santai, ramah, dan fleksibel seperti kakak yang asik
+- Bahasa casual dan gaul secukupnya, tidak kaku
+- Tetap semangat dan positif
+- Bangga jadi bagian Pagaska
+
+ATURAN:
+1. Jawab dalam Bahasa Indonesia yang santai
+2. Kamu BUKAN ChatGPT, Claude, atau AI lain — kamu Kak Taksaka, AI-nya Pagaska
+3. Jangan terlalu panjang, jawab natural seperti chat`;
+}
+
+function buildDokterSystemPrompt() {
+  const now = new Date();
+  const tgl = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:'Asia/Jakarta' });
+  const jam = now.toLocaleTimeString('id-ID', { timeZone:'Asia/Jakarta' });
+  return `Kamu adalah Dokter Taksaka, asisten AI empatik dan tenang milik Paskibra Gala Taksaka SMKN 5 Kota Madiun (Pagaska).
+
+IDENTITAS:
+- Nama: Dokter Taksaka
+- Organisasi: Pagaska — Paskibra Gala Taksaka SMKN 5 Kota Madiun, Jawa Timur
+- Waktu sekarang: ${tgl}, pukul ${jam} WIB
+
+KEPRIBADIAN:
+- Empatik, sabar, dan penuh perhatian
+- Berbicara dengan hangat, tidak menghakimi
+- Tenang dan menenangkan dalam situasi apapun
+
+ATURAN KETAT:
+1. JANGAN pernah memberikan diagnosis medis apapun
+2. Fokus pada validasi perasaan dan dukungan emosional
+3. Jawab dalam Bahasa Indonesia yang hangat dan lembut
+4. Kamu BUKAN dokter sungguhan — kamu Dokter Taksaka, AI support emosional Pagaska`;
+}
+
+// ─── AI CALL ─────────────────────────────────────────────────────────────────
+async function callPersonaAI(systemPrompt, userMessage, apiKey) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 300,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }]
+    })
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `API error ${res.status}`); }
+  const data = await res.json();
+  return data.content[0].text.trim();
+}
+
+async function generateUcapan(nama, jabatan, generasi, apiKey) {
+  const defaultUcapan = {
+    kak:    `Selamat ulang tahun, ${nama}! Semoga semangatmu dalam Pagaska selalu membara. Terus berprestasi dan banggakan almamater!`,
+    dokter: `Dirgahayu, ${nama}! Sebagai Generasi ${generasi} Pagaska, kamu membawa harapan besar. Jaga kesehatan dan terus bersinar!`
+  };
+  if (!apiKey || !apiKey.startsWith('sk-')) return defaultUcapan;
+
+  const userMsg = `Buat ucapan ulang tahun yang personal dan tulus (3-4 kalimat) untuk anggota Pagaska:
+- Nama: ${nama}
+- Jabatan: ${jabatan || 'Anggota Pagaska'}
+- Generasi: ${generasi}
+
+Sesuaikan gaya dengan karaktermu. Langsung teks ucapannya saja, tanpa tanda kutip atau format apapun.`;
+
+  try {
+    setStatus('loading', '✦ Kak & Dokter Taksaka sedang meracik ucapan...');
+    const [kakReply, dokterReply] = await Promise.all([
+      callPersonaAI(buildKakSystemPrompt(), userMsg, apiKey),
+      callPersonaAI(buildDokterSystemPrompt(), userMsg, apiKey)
+    ]);
+    return { kak: kakReply, dokter: dokterReply };
+  } catch (err) {
+    console.warn('AI gagal, pakai default:', err.message);
+    return defaultUcapan;
+  }
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function setStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.className = 'status ' + type;
+  el.textContent = msg;
+}
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Gagal load: ' + src));
+    img.src = src;
+  });
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+
+// Smart text wrap — returns array of lines
+function getLines(ctx, text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
+    else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+// Format tanggal: "31 May 2009"
+function formatTanggal(dateStr) {
+  if (!dateStr) return null;
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  } catch { return null; }
+}
+
+// ─── MAIN GENERATOR ──────────────────────────────────────────────────────────
+async function generateCard() {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  setStatus('loading', '✦ Menyiapkan kanvas...');
+  try {
+    const nama     = document.getElementById('namaInput').value.trim() || 'NAMA LENGKAP';
+    const jabatan  = document.getElementById('jabatanInput').value.trim() || 'Jabatan';
+    const generasi = document.getElementById('generasiInput').value;
+    const tglLahir = document.getElementById('tglLahirInput').value;
+    const apiKey   = document.getElementById('apiKey').value.trim();
+
+    const ucapan = await generateUcapan(nama, jabatan, generasi, apiKey);
+
+    setStatus('loading', '✦ Memuat gambar...');
+    let userImg = null, kakImg = null, dokterImg = null;
+    if (userPhoto) { try { userImg = await loadImage(userPhoto); } catch(e) {} }
+    try { kakImg    = await loadImage(KAK_URL); } catch(e) {}
+    try { dokterImg = await loadImage(DOKTER_URL); } catch(e) {}
+
+    setStatus('loading', '✦ Melukis kartu...');
+    const canvas = await drawCard({ nama, jabatan, generasi, tglLahir, ucapan, userImg, kakImg, dokterImg });
+
+    const wrap = document.getElementById('canvasWrap');
+    wrap.innerHTML = '';
+    wrap.appendChild(canvas);
+    currentCanvas = canvas;
+    document.getElementById('downloadBtn').style.display = 'block';
+    setStatus('success', '✦ Kartu berhasil dibuat!');
+  } catch(err) {
+    console.error(err);
+    setStatus('error', '✗ Error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ─── DRAW ─────────────────────────────────────────────────────────────────────
+async function drawCard({ nama, jabatan, generasi, tglLahir, ucapan, userImg, kakImg, dokterImg }) {
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // ── BG ──
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#07070d'); bg.addColorStop(0.45, '#130600'); bg.addColorStop(1, '#050010');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  // ambient glow blobs
+  const blob = (cx, cy, r, col, a) => {
+    ctx.save(); ctx.globalAlpha = a;
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0, col); g.addColorStop(1,'transparent');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.restore();
+  };
+  blob(100, 450, 420, '#cc1100', 0.04);
+  blob(980, 700, 350, '#ffd700', 0.03);
+  blob(540, 1400, 550, '#6b0000', 0.05);
+  blob(200, 1100, 280, '#ffd700', 0.02);
+
+  // gold gradient helper (horizontal)
+  const goldH = (x1, x2) => {
+    const g = ctx.createLinearGradient(x1,0,x2,0);
+    g.addColorStop(0,'#6a4800'); g.addColorStop(0.25,'#d4a017'); g.addColorStop(0.5,'#ffd700');
+    g.addColorStop(0.75,'#ffeaa0'); g.addColorStop(1,'#6a4800');
+    return g;
+  };
+
+  // ── TOP BORDER ──
+  ctx.fillStyle = goldH(40, W-40); ctx.fillRect(40, 44, W-80, 3);
+  ctx.globalAlpha = 0.4; ctx.fillStyle = goldH(40,W-40); ctx.fillRect(40,51,W-80,1); ctx.globalAlpha=1;
+
+  // ── HEADER ──
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 22px "Cinzel", serif'; ctx.fillStyle = '#c8960c'; ctx.letterSpacing = '8px';
+  ctx.fillText('✦  PAGASKA  ✦', W/2, 112);
+  ctx.font = '15px "Playfair Display", serif'; ctx.fillStyle = '#aaa'; ctx.letterSpacing = '3px';
+  ctx.fillText('Paskibra Gala Taksaka', W/2, 145);
+  ctx.font = 'bold 26px "Playfair Display", serif'; ctx.fillStyle = '#ffd700';
+  ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 16;
+  ctx.fillText('❋  Selamat Ulang Tahun  ❋', W/2, 188);
+  ctx.shadowBlur = 0;
+
+  // divider
+  ctx.globalAlpha=0.45; ctx.fillStyle=goldH(160,W-160); ctx.fillRect(160,204,W-320,1); ctx.globalAlpha=1;
+
+  // ── FOTO SECTION ──
+  const fW=370, fH=420, fR=22;
+  const fX=Math.floor((W-fW)/2), fY=222;
+  const bpad=12, bW=fW+bpad*2, bH=fH+bpad*2, bR=fR+7;
+  const bX=fX-bpad, bY=fY-bpad;
+
+  // ── DECORATIVE STARS around photo ──
+  const drawStar = (cx, cy, r, color, alpha=1) => {
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 10;
+    ctx.beginPath();
+    for (let i=0; i<5; i++) {
+      const aOuter = (i*4*Math.PI/5) - Math.PI/2;
+      const aInner = aOuter + 2*Math.PI/5;
+      if (i===0) ctx.moveTo(cx+r*Math.cos(aOuter), cy+r*Math.sin(aOuter));
+      else ctx.lineTo(cx+r*Math.cos(aOuter), cy+r*Math.sin(aOuter));
+      ctx.lineTo(cx+(r*0.4)*Math.cos(aInner), cy+(r*0.4)*Math.sin(aInner));
+    }
+    ctx.closePath(); ctx.fill(); ctx.restore();
+  };
+
+  // Stars scattered around photo
+  const stars = [
+    {x:bX-50,  y:bY+60,   r:18, a:0.9},  {x:bX-30,  y:bY+160,  r:10, a:0.6},
+    {x:bX-70,  y:bY+280,  r:14, a:0.8},  {x:bX-20,  y:bY+380,  r:8,  a:0.5},
+    {x:bX+bW+40, y:bY+50,  r:16, a:0.85},{x:bX+bW+60, y:bY+180, r:11, a:0.65},
+    {x:bX+bW+30, y:bY+320, r:20, a:0.9}, {x:bX+bW+55, y:bY+410, r:9,  a:0.55},
+    {x:bX+60,  y:bY-35,   r:12, a:0.7},  {x:bX+bW-60, y:bY-40,  r:16, a:0.8},
+    {x:bX+150, y:bY-50,   r:8,  a:0.5},
+  ];
+  for (const s of stars) drawStar(s.x, s.y, s.r, '#ffd700', s.a);
+
+  // Small dot stars
+  const dotStars = [
+    {x:bX-90,y:bY+120},{x:bX-110,y:bY+240},{x:bX+bW+90,y:bY+100},
+    {x:bX+bW+100,y:bY+250},{x:bX+80,y:bY-70},{x:bX+bW-80,y:bY-65},
+  ];
+  for (const d of dotStars) {
+    ctx.save(); ctx.fillStyle='#ffd700'; ctx.globalAlpha=0.4;
+    ctx.beginPath(); ctx.arc(d.x, d.y, 3, 0, Math.PI*2); ctx.fill(); ctx.restore();
+  }
+
+  // Gold swirl arcs left side
+  const drawSwirl = (cx, cy, rMin, rMax, aStart, aEnd, color, alpha) => {
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.shadowColor = color; ctx.shadowBlur = 8;
+    const steps = 40;
+    ctx.beginPath();
+    for (let i=0; i<=steps; i++) {
+      const t = i/steps;
+      const angle = aStart + (aEnd-aStart)*t;
+      const r = rMin + (rMax-rMin)*t;
+      const x = cx + r*Math.cos(angle), y = cy + r*Math.sin(angle);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.restore();
+  };
+  drawSwirl(bX-30, bY+bH/2, 40, 90, -Math.PI*0.7, Math.PI*0.4, '#d4a017', 0.55);
+  drawSwirl(bX+bW+30, bY+bH/2, 40, 85, Math.PI*0.2, Math.PI*1.2, '#d4a017', 0.55);
+
+  // Photo gold border
+  const bGrad = ctx.createLinearGradient(bX,bY,bX+bW,bY+bH);
+  bGrad.addColorStop(0,'#9a6800'); bGrad.addColorStop(0.3,'#ffd700'); bGrad.addColorStop(0.7,'#ffeaa0'); bGrad.addColorStop(1,'#9a6800');
+  roundRect(ctx, bX, bY, bW, bH, bR); ctx.fillStyle=bGrad; ctx.fill();
+  // inner shimmer line
+  ctx.strokeStyle='rgba(255,240,160,0.5)'; ctx.lineWidth=1.5;
+  roundRect(ctx, bX+3, bY+3, bW-6, bH-6, bR-2); ctx.stroke();
+
+  // draw photo
+  ctx.save();
+  roundRect(ctx, fX, fY, fW, fH, fR); ctx.clip();
+  if (userImg) {
+    const scale = Math.max(fW/userImg.width, fH/userImg.height);
+    const sw=userImg.width*scale, sh=userImg.height*scale;
+    ctx.drawImage(userImg, fX+(fW-sw)/2, fY+(fH-sh)/2, sw, sh);
+  } else {
+    ctx.fillStyle='#1a1a22'; ctx.fillRect(fX,fY,fW,fH);
+    ctx.font='90px serif'; ctx.textAlign='center'; ctx.fillStyle='#444';
+    ctx.fillText('👤', W/2, fY+fH/2+30);
+  }
+  ctx.restore();
+
+  // ── GENERASI + NAME SECTION ──
+  const afterFoto = fY + bH;
+
+  // Generasi label with arrows
+  ctx.textAlign='center'; ctx.font='14px "Cinzel",serif'; ctx.fillStyle='#aaa'; ctx.letterSpacing='2px';
+  ctx.fillText('— ✦ —', W/2-130, afterFoto+38);
+  ctx.fillText(`Generasi ${generasi}`, W/2, afterFoto+38);
+  ctx.fillText('— ✦ —', W/2+80, afterFoto+38);
+
+  // Name box — bigger, bolder
+  const nBY = afterFoto + 60, nBH = 100, nBX = 60, nBW = W-120;
+  const nBGrad = ctx.createLinearGradient(nBX, nBY, nBX+nBW, nBY+nBH);
+  nBGrad.addColorStop(0,'rgba(18,8,0,0.9)'); nBGrad.addColorStop(0.5,'rgba(30,12,0,0.95)'); nBGrad.addColorStop(1,'rgba(18,8,0,0.9)');
+  roundRect(ctx, nBX, nBY, nBW, nBH, 10); ctx.fillStyle=nBGrad; ctx.fill();
+  ctx.strokeStyle=goldH(nBX, nBX+nBW); ctx.lineWidth=2.5;
+  roundRect(ctx, nBX, nBY, nBW, nBH, 10); ctx.stroke();
+  // inner thin border
+  ctx.globalAlpha=0.35; ctx.strokeStyle='#ffd700'; ctx.lineWidth=1;
+  roundRect(ctx, nBX+5, nBY+5, nBW-10, nBH-10, 7); ctx.stroke(); ctx.globalAlpha=1;
+
+  // Name text gradient
+  const nameGrad = ctx.createLinearGradient(nBX, 0, nBX+nBW, 0);
+  nameGrad.addColorStop(0,'#e8a000'); nameGrad.addColorStop(0.5,'#ffe566'); nameGrad.addColorStop(1,'#e8a000');
+  ctx.fillStyle=nameGrad; ctx.shadowColor='#ffd700'; ctx.shadowBlur=20;
+  ctx.font='bold 54px "Cinzel",serif'; ctx.letterSpacing='3px';
+  // auto-shrink if long
+  let nameFontSize = 54;
+  while (ctx.measureText(nama.toUpperCase()).width > nBW-60 && nameFontSize > 28) {
+    nameFontSize -= 2; ctx.font=`bold ${nameFontSize}px "Cinzel",serif`;
+  }
+  ctx.fillText(nama.toUpperCase(), W/2, nBY+62);
+  ctx.shadowBlur=0;
+  ctx.font='italic 17px "Playfair Display",serif'; ctx.fillStyle='#ccc'; ctx.letterSpacing='1px';
+  ctx.fillText(jabatan, W/2, nBY+85);
+
+  // Tanggal lahir
+  const tglStr = formatTanggal(tglLahir);
+  if (tglStr) {
+    ctx.font='15px "Cinzel",serif'; ctx.fillStyle='#a07820'; ctx.letterSpacing='1px';
+    ctx.fillText(`⊡  ${tglStr}  ⊡`, W/2, nBY+nBH+30);
+  }
+
+  // ── EMOJI ROW — bigger, more festive ──
+  const emojiBaseY = nBY + nBH + (tglStr ? 68 : 52);
+  const emojis = ['🎊','🎖','🎈','🎁','🎆'];
+  const emojiSpacing = 140;
+  const emojiStartX = W/2 - (emojis.length-1)*emojiSpacing/2;
+  ctx.font = '48px serif';
+  for (let i=0; i<emojis.length; i++) {
+    ctx.fillText(emojis[i], emojiStartX + i*emojiSpacing, emojiBaseY);
+  }
+
+  // ── CHARACTER SECTION ──
+  const charSectionY = emojiBaseY + 55;
+  ctx.globalAlpha=0.35; ctx.fillStyle=goldH(40,W-40); ctx.fillRect(40,charSectionY,W-80,1.5); ctx.globalAlpha=1;
+
+  const boxW=480, charW=310, charH=460;
+  const leftBoxX=30, rightBoxX=W-30-boxW;
+  const charBoxY = charSectionY + 14;
+  const kakX    = leftBoxX  + Math.floor((boxW-charW)/2);
+  const dokterX = rightBoxX + Math.floor((boxW-charW)/2);
+
+  // char labels
+  ctx.font='bold 16px "Cinzel",serif'; ctx.letterSpacing='1px';
+  ctx.fillStyle='#ffd700'; ctx.textAlign='center';
+  ctx.fillText('⚙  Kak Taksaka', leftBoxX+boxW/2, charBoxY-8);
+  ctx.fillText('⚕  Dokter Taksaka', rightBoxX+boxW/2, charBoxY-8);
+
+  // char boxes
+  const drawCharBox = (bx) => {
+    const boxBg = ctx.createLinearGradient(bx, charBoxY, bx, charBoxY+charH+8);
+    boxBg.addColorStop(0,'rgba(10,8,3,0.8)'); boxBg.addColorStop(1,'rgba(4,8,4,0.85)');
+    roundRect(ctx, bx, charBoxY, boxW, charH+8, 12); ctx.fillStyle=boxBg; ctx.fill();
+    ctx.strokeStyle='#b8860b'; ctx.lineWidth=1.5;
+    roundRect(ctx, bx, charBoxY, boxW, charH+8, 12); ctx.stroke();
+    // corner accents
+    const cs=18;
+    ctx.strokeStyle='#ffd700'; ctx.lineWidth=2; ctx.globalAlpha=0.7;
+    ctx.beginPath(); ctx.moveTo(bx+cs,charBoxY+2); ctx.lineTo(bx+2,charBoxY+2); ctx.lineTo(bx+2,charBoxY+cs); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx+boxW-cs,charBoxY+2); ctx.lineTo(bx+boxW-2,charBoxY+2); ctx.lineTo(bx+boxW-2,charBoxY+cs); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx+cs,charBoxY+charH+6); ctx.lineTo(bx+2,charBoxY+charH+6); ctx.lineTo(bx+2,charBoxY+charH-cs+8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx+boxW-cs,charBoxY+charH+6); ctx.lineTo(bx+boxW-2,charBoxY+charH+6); ctx.lineTo(bx+boxW-2,charBoxY+charH-cs+8); ctx.stroke();
+    ctx.globalAlpha=1;
+  };
+  drawCharBox(leftBoxX); drawCharBox(rightBoxX);
+
+  // draw char images — taller now
+  const drawChar = (img, x, y, w, h) => {
+    ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    if (img) {
+      const scale = Math.min(w/img.width, h/img.height);
+      const sw=img.width*scale, sh=img.height*scale;
+      ctx.drawImage(img, x+(w-sw)/2, y+(h-sh)/2, sw, sh);
+    } else {
+      ctx.fillStyle='#1a1a1a'; ctx.fillRect(x,y,w,h);
+      ctx.font='70px serif'; ctx.textAlign='center'; ctx.fillStyle='#555';
+      ctx.fillText('🧑', x+w/2, y+h/2+25);
+    }
+    ctx.restore();
+  };
+  drawChar(kakImg,    kakX,    charBoxY+4, charW, charH);
+  drawChar(dokterImg, dokterX, charBoxY+4, charW, charH);
+
+  // confetti/sparkle dots around chars
+  const confettiColors = ['#ffd700','#ff6b6b','#4ecdc4','#ffeaa0','#a78bfa'];
+  const confettiPts = [
+    {x:leftBoxX-15, y:charBoxY+80},{x:leftBoxX-25,y:charBoxY+200},{x:leftBoxX+boxW+15,y:charBoxY+120},
+    {x:leftBoxX+boxW+20,y:charBoxY+300},{x:rightBoxX-15,y:charBoxY+160},{x:rightBoxX+boxW+10,y:charBoxY+80},
+    {x:rightBoxX+boxW+25,y:charBoxY+220},{x:leftBoxX+60,y:charBoxY-20},{x:rightBoxX+boxW-60,y:charBoxY-18},
+    {x:W/2-20,y:charBoxY-15},{x:W/2+20,y:charBoxY-25},
+  ];
+  confettiPts.forEach((p,i) => {
+    ctx.save(); ctx.globalAlpha=0.65; ctx.fillStyle=confettiColors[i%confettiColors.length];
+    ctx.shadowColor=confettiColors[i%confettiColors.length]; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fill(); ctx.restore();
+  });
+
+  // ── SPEECH BUBBLES — bigger, better font ──
+  const bubbleY = charBoxY + charH + 22;
+  const bubbleH = 220;
+
+  const drawBubble = (bx, text, bgCol, sign) => {
+    // box
+    const bbg = ctx.createLinearGradient(bx, bubbleY, bx, bubbleY+bubbleH);
+    bbg.addColorStop(0, bgCol+'ee'); bbg.addColorStop(1, bgCol+'cc');
+    roundRect(ctx, bx, bubbleY, boxW, bubbleH, 12); ctx.fillStyle=bbg; ctx.fill();
+    ctx.strokeStyle='#c8960c'; ctx.lineWidth=1.5;
+    roundRect(ctx, bx, bubbleY, boxW, bubbleH, 12); ctx.stroke();
+
+    // title
+    ctx.font='bold 14px "Cinzel",serif'; ctx.fillStyle='#ffd700'; ctx.letterSpacing='2px';
+    ctx.textAlign='center';
+    ctx.shadowColor='#ffd700'; ctx.shadowBlur=6;
+    ctx.fillText('✦  Ucapan Spesial  ✦', bx+boxW/2, bubbleY+30);
+    ctx.shadowBlur=0;
+
+    // divider
+    ctx.globalAlpha=0.4; ctx.fillStyle='#c8960c'; ctx.fillRect(bx+30, bubbleY+40, boxW-60, 1); ctx.globalAlpha=1;
+
+    // text — bigger, Playfair Display
+    ctx.font='17px "Playfair Display",serif'; ctx.fillStyle='#e8e0d0'; ctx.letterSpacing='0px';
+    ctx.textAlign='center';
+    const lines = getLines(ctx, text, boxW-70);
+    const lineH = 26;
+    const totalTextH = lines.length * lineH;
+    let ty = bubbleY + 55 + (bubbleH - 55 - 40 - totalTextH) / 2;
+    for (const line of lines) { ctx.fillText(line, bx+boxW/2, ty); ty += lineH; }
+
+    // signature
+    ctx.font='italic 14px "Playfair Display",serif'; ctx.fillStyle='#9a7820'; ctx.letterSpacing='0px';
+    ctx.fillText(`— ${sign}`, bx+boxW/2, bubbleY+bubbleH-16);
+  };
+
+  drawBubble(leftBoxX,  ucapan.kak,    '#1c0808', 'Kak Taksaka');
+  drawBubble(rightBoxX, ucapan.dokter, '#041408', 'Dokter Taksaka');
+
+  // ── FOOTER ──
+  const footerDivY = bubbleY + bubbleH + 28;
+  ctx.globalAlpha=0.3; ctx.fillStyle=goldH(40,W-40); ctx.fillRect(40,footerDivY,W-80,1); ctx.globalAlpha=1;
+
+  ctx.font='bold 18px "Cinzel",serif'; ctx.fillStyle='#c8960c'; ctx.letterSpacing='8px'; ctx.textAlign='center';
+  ctx.shadowColor='#ffd700'; ctx.shadowBlur=10;
+  ctx.fillText('✦  PAGASKA  ✦', W/2, H-58);
+  ctx.shadowBlur=0;
+
+  ctx.fillStyle=goldH(40,W-40); ctx.fillRect(40, H-48, W-80, 3);
+  ctx.globalAlpha=0.35; ctx.fillStyle=goldH(40,W-40); ctx.fillRect(40,H-43,W-80,1); ctx.globalAlpha=1;
+
+  return canvas;
+}
+
+function formatTanggal(dateStr) {
+  if (!dateStr) return null;
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  } catch { return null; }
+}
+
+// ─── DOWNLOAD ─────────────────────────────────────────────────────────────────
+function downloadCard() {
+  if (!currentCanvas) return;
+  const link = document.createElement('a');
+  const nama = document.getElementById('namaInput').value.trim() || 'pagaska';
+  link.download = `HBD_${nama.replace(/\s+/g,'_')}_PAGASKA.png`;
+  link.href = currentCanvas.toDataURL('image/png');
+  link.click();
+}
+</script>
+</body>
+</html>
