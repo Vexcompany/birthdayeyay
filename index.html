@@ -269,15 +269,16 @@ async function callPersonaAI(systemPrompt, userMessage, apiKey) {
 async function generateUcapan(nama, jabatan, generasi, apiKey) {
   const defaultUcapan = {
     kak:    `Selamat ulang tahun, ${nama}! Semoga semangatmu dalam Pagaska selalu membara. Terus berprestasi dan banggakan almamater!`,
-    dokter: `Dirgahayu, ${nama}! Sebagai Generasi ${generasi} Pagaska, kamu membawa harapan besar. Jaga kesehatan dan terus bersinar!`
+    dokter: `Selamat ulang tahun, ${nama}! Semoga kamu selalu sehat dan bahagia. Sebagai Generasi ${generasi} Pagaska, teruslah bersinar dan membawa kebanggaan!`
   };
   if (!apiKey || !apiKey.startsWith('sk-')) return defaultUcapan;
 
-  const userMsg = `Buat ucapan ulang tahun yang personal dan tulus (3-4 kalimat) untuk anggota Pagaska:
+  const userMsg = `Buat ucapan SELAMAT ULANG TAHUN (bukan dirgahayu) yang personal dan tulus (3-4 kalimat) untuk anggota Pagaska:
 - Nama: ${nama}
 - Jabatan: ${jabatan || 'Anggota Pagaska'}
 - Generasi: ${generasi}
 
+PENTING: Mulai ucapan dengan kalimat yang berisi "Selamat ulang tahun" - JANGAN gunakan kata "Dirgahayu".
 Sesuaikan gaya dengan karaktermu. Langsung teks ucapannya saja, tanpa tanda kutip atau format apapun.`;
 
   try {
@@ -528,11 +529,11 @@ async function drawCard({ nama, jabatan, generasi, tglLahir, ucapan, userImg, ka
   const genY = afterFoto+48;
   ctx.globalAlpha=0.5; ctx.fillStyle=goldH(100,W/2-100); ctx.fillRect(100,genY-8,W/2-210,1.5);
   ctx.fillStyle=goldH(W/2+110,W-100); ctx.fillRect(W/2+110,genY-8,W/2-210,1.5); ctx.globalAlpha=1;
-  ctx.font='bold 20px "Cinzel",serif'; ctx.letterSpacing='3px'; ctx.fillStyle='#e8d080'; ctx.textAlign='center';
+  ctx.font='bold 25px "Cinzel",serif'; ctx.letterSpacing='3px'; ctx.fillStyle='#e8d080'; ctx.textAlign='center';
   ctx.fillText(`Generasi ${generasi}`, W/2, genY);
 
   // ── NAME BOX ──
-  const nY=genY+28, nH=112, nX=50, nW=W-100;
+  const nY=genY+32, nH=122, nX=50, nW=W-100;
   // background
   const nBg=ctx.createLinearGradient(nX,nY,nX+nW,nY+nH);
   nBg.addColorStop(0,'rgba(12,5,0,0.95)'); nBg.addColorStop(0.5,'rgba(25,10,0,0.98)'); nBg.addColorStop(1,'rgba(12,5,0,0.95)');
@@ -549,14 +550,14 @@ async function drawCard({ nama, jabatan, generasi, tglLahir, ucapan, userImg, ka
   nameGrad.addColorStop(0,'#d4a017'); nameGrad.addColorStop(0.4,'#ffd700');
   nameGrad.addColorStop(0.7,'#fff4b0'); nameGrad.addColorStop(1,'#d4a017');
   ctx.fillStyle=nameGrad; glow('#ffd700',22);
-  let nfs=58;
+  let nfs=62;
   ctx.font=`bold ${nfs}px "Cinzel",serif`; ctx.letterSpacing='3px';
   while(ctx.measureText(nama.toUpperCase()).width>nW-80&&nfs>28){nfs-=2;ctx.font=`bold ${nfs}px "Cinzel",serif`;}
-  ctx.textAlign='center'; ctx.fillText(nama.toUpperCase(),W/2,nY+68); noGlow();
+  ctx.textAlign='center'; ctx.fillText(nama.toUpperCase(),W/2,nY+72); noGlow();
 
   // Jabatan
-  ctx.font='italic 20px "Playfair Display",serif'; ctx.letterSpacing='1px'; ctx.fillStyle='#c8b880';
-  ctx.fillText(jabatan,W/2,nY+95);
+  ctx.font='italic 22px "Playfair Display",serif'; ctx.letterSpacing='1px'; ctx.fillStyle='#c8b880';
+  ctx.fillText(jabatan,W/2,nY+103);
 
   // ── TANGGAL LAHIR ──
   const tglStr = tglLahir ? (() => {
@@ -578,20 +579,12 @@ async function drawCard({ nama, jabatan, generasi, tglLahir, ucapan, userImg, ka
     glow('#ffd700',10); ctx.fillText(tglStr,W/2,tglY); noGlow();
   }
 
-  // ── ICON ROW (drawn as gold flat icons) ──
-  const iconY = (tglStr ? tglY : nY+nH+44) + (tglStr ? 52 : 18);
-  const icons = [
-    { draw: drawIconCrown },
-    { draw: drawIconMedal },
-    { draw: drawIconBalloon },
-    { draw: drawIconGift },
-    { draw: drawIconFirework },
-  ];
-  const iconSpacing = 150, iconSize = 36;
-  const iconStartX = W/2 - (icons.length-1)*iconSpacing/2;
-  icons.forEach((ic,i)=>{
-    ic.draw(ctx, iconStartX+i*iconSpacing, iconY, iconSize);
-  });
+  // ── ICON ROW — small elegant gold icons matching GPT reference ──
+  const iconY = (tglStr ? tglY : nY+nH+44) + (tglStr ? 46 : 18);
+  const iconSize = 22, iconSpacing = 110;
+  const iconStartX = W/2 - 2*iconSpacing;
+  const iconDrawers = [drawIconCrown, drawIconMedal, drawIconBalloon, drawIconGift, drawIconQR];
+  iconDrawers.forEach((fn,i) => fn(ctx, iconStartX+i*iconSpacing, iconY, iconSize));
 
   // ── CHARACTER SECTION ──
   const charSectionY = iconY + 60;
@@ -634,16 +627,31 @@ async function drawCard({ nama, jabatan, generasi, tglLahir, ucapan, userImg, ka
   drawCharBox(lBX,'#2a0404','#180a02'); // dark red
   drawCharBox(rBX,'#021a08','#021008'); // dark green
 
-  // Confetti ribbons
-  const confetti=[
-    {x:lBX-8,y:charBoxY+100,col:'#ffd700'},{x:lBX-12,y:charBoxY+220,col:'#ff6b6b'},
-    {x:lBX+boxW+8,y:charBoxY+80,col:'#ffd700'},{x:lBX+boxW+12,y:charBoxY+250,col:'#4ecdc4'},
-    {x:rBX-10,y:charBoxY+140,col:'#a78bfa'},{x:rBX+boxW+8,y:charBoxY+180,col:'#ffd700'},
-    {x:rBX+boxW+14,y:charBoxY+320,col:'#ff6b6b'},
-  ];
-  confetti.forEach(c=>{
-    ctx.save(); ctx.fillStyle=c.col; ctx.globalAlpha=0.7; ctx.shadowColor=c.col; ctx.shadowBlur=10;
-    ctx.beginPath(); ctx.arc(c.x,c.y,5,0,Math.PI*2); ctx.fill(); ctx.restore();
+  // ── Ribbons INSIDE char boxes (like GPT Violita) ──
+  const drawRibbon=(x1,y1,x2,y2,col,alpha=0.55,lw=2.5)=>{
+    ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.lineCap='round';
+    ctx.shadowColor=col; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.bezierCurveTo(x1+(x2-x1)*0.3,y1+(y2-y1)*0.1,x1+(x2-x1)*0.7,y2-(y2-y1)*0.1,x2,y2); ctx.stroke(); ctx.restore();
+  };
+  // Left box ribbons (red bg)
+  drawRibbon(lBX+boxW-30,charBoxY+30,  lBX+boxW-10,charBoxY+charH*0.5,'#ffd700',0.5,3);
+  drawRibbon(lBX+boxW-18,charBoxY+80,  lBX+boxW-5, charBoxY+charH*0.7,'#c8960c',0.4,2);
+  drawRibbon(lBX+5,      charBoxY+charH*0.3, lBX+25,charBoxY+charH*0.8,'#ffd700',0.35,2);
+  // Right box ribbons (green bg)
+  drawRibbon(rBX+boxW-28,charBoxY+20,  rBX+boxW-8, charBoxY+charH*0.55,'#ffd700',0.5,3);
+  drawRibbon(rBX+boxW-15,charBoxY+90,  rBX+boxW-4, charBoxY+charH*0.75,'#c8960c',0.4,2);
+  drawRibbon(rBX+6,      charBoxY+charH*0.25,rBX+22,charBoxY+charH*0.75,'#ffd700',0.35,2);
+  // Tiny gold confetti dots inside boxes
+  [[lBX+boxW-45,charBoxY+55],[lBX+boxW-25,charBoxY+160],[lBX+18,charBoxY+charH*0.4],
+   [rBX+boxW-40,charBoxY+45],[rBX+boxW-20,charBoxY+180],[rBX+20,charBoxY+charH*0.45]].forEach(([x,y])=>{
+    ctx.save(); ctx.fillStyle='#ffd700'; ctx.globalAlpha=0.5; ctx.shadowColor='#ffd700'; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill(); ctx.restore();
+  });
+  // Outer edge dots (outside boxes)
+  [[lBX-10,charBoxY+100,'#ffd700'],[lBX-14,charBoxY+260,'#ff6b6b'],[lBX+boxW+10,charBoxY+90,'#ffd700'],
+   [rBX-12,charBoxY+150,'#a78bfa'],[rBX+boxW+10,charBoxY+200,'#ffd700'],[rBX+boxW+16,charBoxY+360,'#4ecdc4']].forEach(([x,y,c])=>{
+    ctx.save(); ctx.fillStyle=c; ctx.globalAlpha=0.65; ctx.shadowColor=c; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); ctx.restore();
   });
 
   // Char images
@@ -719,18 +727,22 @@ async function drawCard({ nama, jabatan, generasi, tglLahir, ucapan, userImg, ka
 
 // ── ICON DRAW FUNCTIONS ──────────────────────────────────────────────────────
 function drawIconCrown(ctx, cx, cy, s) {
-  ctx.save();
-  ctx.fillStyle='#ffd700'; ctx.shadowColor='#ffd700'; ctx.shadowBlur=16; ctx.globalAlpha=0.95;
-  // crown base
-  ctx.beginPath(); ctx.moveTo(cx-s,cy+s*0.4); ctx.lineTo(cx-s,cy-s*0.1);
-  ctx.lineTo(cx-s*0.5,cy+s*0.1); ctx.lineTo(cx,cy-s*0.8);
-  ctx.lineTo(cx+s*0.5,cy+s*0.1); ctx.lineTo(cx+s,cy-s*0.1);
-  ctx.lineTo(cx+s,cy+s*0.4); ctx.closePath(); ctx.fill();
-  // base bar
-  ctx.fillRect(cx-s,cy+s*0.4,s*2,s*0.28);
-  // gems
-  ctx.fillStyle='#fff4a0'; ctx.shadowBlur=0;
-  ctx.beginPath(); ctx.arc(cx,cy-s*0.55,s*0.13,0,Math.PI*2); ctx.fill();
+  ctx.save(); ctx.globalAlpha=0.95;
+  const g=ctx.createLinearGradient(cx-s,cy-s,cx+s,cy+s);
+  g.addColorStop(0,'#ffeaa0'); g.addColorStop(0.5,'#ffd700'); g.addColorStop(1,'#c8960c');
+  ctx.fillStyle=g; ctx.shadowColor='#ffd700'; ctx.shadowBlur=18;
+  // crown shape
+  ctx.beginPath();
+  ctx.moveTo(cx-s,cy+s*0.45); ctx.lineTo(cx-s,cy-s*0.05);
+  ctx.lineTo(cx-s*0.45,cy+s*0.15); ctx.lineTo(cx,cy-s*0.85);
+  ctx.lineTo(cx+s*0.45,cy+s*0.15); ctx.lineTo(cx+s,cy-s*0.05);
+  ctx.lineTo(cx+s,cy+s*0.45); ctx.closePath(); ctx.fill();
+  ctx.fillRect(cx-s,cy+s*0.42,s*2,s*0.32);
+  // gem dots
+  ctx.fillStyle='#fff8c0'; ctx.shadowBlur=6;
+  [[-s*0.55,0],[0,-s*0.6],[s*0.55,0]].forEach(([ox,oy])=>{
+    ctx.beginPath(); ctx.arc(cx+ox,cy+oy,s*0.14,0,Math.PI*2); ctx.fill();
+  });
   ctx.restore();
 }
 
@@ -802,24 +814,39 @@ function drawIconGift(ctx, cx, cy, s) {
 }
 
 function drawIconFirework(ctx, cx, cy, s) {
-  ctx.save(); ctx.globalAlpha=0.9;
-  const cols=['#ffd700','#ff6b6b','#4ecdc4','#a78bfa','#ffeaa0'];
-  const rays=12;
-  for(let i=0;i<rays;i++){
-    const angle=(i/rays)*Math.PI*2;
-    const len=s*(0.6+0.4*(i%3===0?1:0.7));
-    const col=cols[i%cols.length];
-    ctx.strokeStyle=col; ctx.shadowColor=col; ctx.shadowBlur=12; ctx.lineWidth=2.5; ctx.lineCap='round';
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+len*Math.cos(angle),cy+len*Math.sin(angle)); ctx.stroke();
-    // dot at tip
-    ctx.fillStyle=col; ctx.shadowBlur=16;
-    ctx.beginPath(); ctx.arc(cx+len*Math.cos(angle),cy+len*Math.sin(angle),3.5,0,Math.PI*2); ctx.fill();
-  }
-  // center
-  const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,s*0.22);
-  cg.addColorStop(0,'#fff'); cg.addColorStop(1,'#ffd700');
-  ctx.fillStyle=cg; ctx.shadowColor='#ffd700'; ctx.shadowBlur=20;
-  ctx.beginPath(); ctx.arc(cx,cy,s*0.18,0,Math.PI*2); ctx.fill();
+  // kept for compat but not used
+}
+
+function drawIconQR(ctx, cx, cy, s) {
+  // QR-style decorative icon matching GPT reference (grid pattern with gold glow)
+  ctx.save(); ctx.globalAlpha=0.92;
+  ctx.shadowColor='#ffd700'; ctx.shadowBlur=14; ctx.fillStyle='#ffd700';
+  const cell=s*0.28, gap=s*0.06;
+  const grid=[
+    [0,0],[1,0],[2,0],[0,1],[2,1],[0,2],[1,2],[2,2],
+    [0,0],[0,1],[0,2],[2,0],[2,2],
+  ];
+  // outer frame squares (3x3 corners)
+  const drawCell=(gx,gy)=>{ ctx.fillRect(cx-s+gx*(cell+gap), cy-s+gy*(cell+gap), cell, cell); };
+  // top-left corner block
+  for(let r=0;r<3;r++) for(let c=0;c<3;c++) drawCell(c,r);
+  // hollow middle
+  ctx.fillStyle='#1a0800'; ctx.fillRect(cx-s+cell+gap,cy-s+cell+gap,cell,cell);
+  ctx.fillStyle='#ffd700';
+  // top-right corner block
+  const off=s*0.9;
+  for(let r=0;r<3;r++) for(let c=0;c<3;c++) ctx.fillRect(cx+off/3+(c*(cell+gap)),cy-s+r*(cell+gap),cell,cell);
+  ctx.fillStyle='#1a0800'; ctx.fillRect(cx+off/3+cell+gap,cy-s+cell+gap,cell,cell);
+  ctx.fillStyle='#ffd700';
+  // bottom-left corner block
+  for(let r=0;r<3;r++) for(let c=0;c<3;c++) ctx.fillRect(cx-s+c*(cell+gap),cy+off/3+r*(cell+gap),cell,cell);
+  ctx.fillStyle='#1a0800'; ctx.fillRect(cx-s+cell+gap,cy+off/3+cell+gap,cell,cell);
+  ctx.fillStyle='#ffd700';
+  // center dots
+  const dotSize=cell*0.55;
+  [[0,0],[1,0],[0,1],[1,1]].forEach(([dc,dr])=>{
+    ctx.fillRect(cx+dc*(dotSize+gap*2),cy+dr*(dotSize+gap*2),dotSize,dotSize);
+  });
   ctx.restore();
 }
 
