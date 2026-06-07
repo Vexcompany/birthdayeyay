@@ -9,377 +9,241 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --gold-light: #fffacd;
-  --gold: #ffd700;
-  --gold-mid: #c8960c;
-  --gold-dark: #7a5500;
-  --gold-deeper: #3d2900;
-  --red: #cc2222;
-  --red-bright: #e63030;
-  --bg: #070709;
-  --bg2: #120400;
-  --bg3: #080012;
-  --card-bg: #0e0c0a;
-  --text-muted: #888;
-  --text-dim: #aaa;
-  --text-light: #ddd;
+  --gold: #ffd700; --gold-mid: #c8960c; --gold-dark: #7a5500; --gold-deeper: #3d2900;
 }
-
 body {
-  background: #111;
+  background: #0e0c0a;
   font-family: 'EB Garamond', serif;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 20px;
-  gap: 40px;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 32px 16px; gap: 32px;
 }
-
-/* ─── FORM ──────────────────────────────────────────────── */
 .form-panel {
-  width: 100%;
-  max-width: 500px;
-  background: #1a1510;
-  border: 1px solid var(--gold-dark);
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 0 40px rgba(200,150,12,0.08);
+  width: 100%; max-width: 480px;
+  background: #16120d; border: 1px solid var(--gold-dark);
+  border-radius: 12px; padding: 28px;
+  box-shadow: 0 0 40px rgba(200,150,12,0.07);
 }
-
 .form-panel h2 {
-  font-family: 'Cinzel', serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--gold);
-  text-align: center;
-  letter-spacing: 4px;
-  margin-bottom: 8px;
+  font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;
+  color: var(--gold); text-align: center; letter-spacing: 4px; margin-bottom: 6px;
 }
-.form-panel p {
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 28px;
-  font-family: 'EB Garamond', serif;
-  font-style: italic;
+.form-panel .sub {
+  text-align: center; font-size: 13px; color: #666;
+  margin-bottom: 24px; font-style: italic;
 }
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.form-grid .full { grid-column: 1 / -1; }
-
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid .full { grid-column: 1/-1; }
 label {
-  display: block;
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--gold-mid);
-  margin-bottom: 6px;
+  display: block; font-family: 'Cinzel', serif; font-size: 9px;
+  letter-spacing: 2px; color: var(--gold-mid); margin-bottom: 5px;
 }
-
-input, select {
-  width: 100%;
-  background: #0e0c0a;
-  border: 1px solid #3d2900;
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-family: 'EB Garamond', serif;
-  font-size: 15px;
-  color: var(--text-light);
-  outline: none;
+input {
+  width: 100%; background: #0a0806; border: 1px solid #2e2000;
+  border-radius: 6px; padding: 9px 13px;
+  font-family: 'EB Garamond', serif; font-size: 15px; color: #ddd; outline: none;
   transition: border-color 0.2s;
 }
-input:focus, select:focus { border-color: var(--gold-mid); }
-input::placeholder { color: #444; font-style: italic; }
-
-select option { background: #1a1510; }
-
+input:focus { border-color: var(--gold-mid); }
+input::placeholder { color: #333; font-style: italic; }
 .photo-upload {
-  position: relative;
-  border: 2px dashed #3d2900;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.2s;
+  position: relative; border: 2px dashed #2e2000; border-radius: 8px;
+  padding: 18px; text-align: center; cursor: pointer; transition: border-color 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
 .photo-upload:hover { border-color: var(--gold-mid); }
 .photo-upload input[type="file"] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer;
-  width: 100%; height: 100%;
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
 }
-.photo-upload .upload-label {
-  font-size: 13px; color: var(--text-muted); pointer-events: none;
-  font-style: italic;
+.upload-preview {
+  width: 72px; height: 72px; border-radius: 6px; object-fit: cover;
+  border: 1px solid var(--gold-dark); display: none;
 }
-.photo-upload .upload-preview {
-  width: 80px; height: 80px; border-radius: 8px;
-  object-fit: cover; margin: 0 auto 8px;
-  display: none;
-  border: 1px solid var(--gold-dark);
-}
-
+.upload-label { font-size: 12px; color: #555; pointer-events: none; font-style: italic; }
 .btn-generate {
   width: 100%;
-  background: linear-gradient(135deg, var(--gold-deeper), var(--gold-dark), var(--gold), var(--gold-dark), var(--gold-deeper));
-  background-size: 300% 300%;
-  animation: shimmer 4s ease infinite;
-  border: none;
-  border-radius: 8px;
-  padding: 14px;
-  font-family: 'Cinzel', serif;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  color: #0e0a04;
-  cursor: pointer;
-  margin-top: 20px;
+  background: linear-gradient(135deg, #3d2900, #7a5500, #ffd700, #7a5500, #3d2900);
+  background-size: 300% 300%; animation: shimmer 4s ease infinite;
+  border: none; border-radius: 8px; padding: 13px;
+  font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 4px; color: #0a0600; cursor: pointer; margin-top: 18px;
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.btn-generate:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(255,215,0,0.25);
-}
-.btn-generate:active { transform: translateY(0); }
-
+.btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,215,0,0.2); }
 @keyframes shimmer {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; }
 }
-
 .btn-download {
-  width: 100%;
-  background: transparent;
-  border: 1px solid var(--gold-dark);
-  border-radius: 8px;
-  padding: 11px;
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 3px;
-  color: var(--gold-mid);
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.2s, color 0.2s;
-  display: none;
+  width: 100%; background: transparent; border: 1px solid var(--gold-dark);
+  border-radius: 8px; padding: 10px;
+  font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 3px;
+  color: var(--gold-mid); cursor: pointer; margin-top: 8px;
+  transition: background 0.2s; display: none;
 }
-.btn-download:hover { background: rgba(200,150,12,0.1); color: var(--gold); }
-
-/* ─── POSTER ─────────────────────────────────────────────── */
-.poster-wrapper {
-  position: relative;
-}
-
+.btn-download:hover { background: rgba(200,150,12,0.08); color: var(--gold); }
+.poster-wrap { position: relative; }
 #poster-canvas {
-  display: block;
-  max-width: 100%;
-  border-radius: 4px;
-  box-shadow: 0 20px 80px rgba(0,0,0,0.8), 0 0 60px rgba(200,150,12,0.06);
+  display: none; max-width: 100%;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.9), 0 0 50px rgba(200,150,12,0.05);
 }
-
-.poster-placeholder {
-  width: 480px;
-  max-width: 100%;
-  aspect-ratio: 9/16;
-  background: #0e0c0a;
-  border: 1px solid #1e1a14;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: var(--text-muted);
+.placeholder {
+  width: 360px; max-width: 100%; aspect-ratio: 9/16;
+  background: #0a0806; border: 1px solid #1a1510; border-radius: 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
 }
-.poster-placeholder .ph-icon { font-size: 48px; opacity: 0.3; }
-.poster-placeholder p {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 3px;
-  opacity: 0.4;
-}
-
+.placeholder span { font-size: 40px; opacity: 0.2; }
+.placeholder p { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 3px; color: #333; }
 </style>
 </head>
 <body>
 
-<!-- FORM -->
 <div class="form-panel">
   <h2>✦ PAGASKA ✦</h2>
-  <p>Generator Kartu Ulang Tahun</p>
-
+  <div class="sub">Generator Kartu Ulang Tahun</div>
   <div class="form-grid">
     <div class="full">
       <label>FOTO ANGGOTA</label>
-      <div class="photo-upload" id="photoUpload">
+      <div class="photo-upload">
         <input type="file" id="photoInput" accept="image/*">
         <img class="upload-preview" id="photoPreview" alt="">
-        <div class="upload-label" id="uploadLabel">Klik untuk upload foto</div>
+        <div class="upload-label" id="uploadLabel">📷 Klik untuk upload foto</div>
       </div>
     </div>
-
     <div class="full">
       <label>NAMA LENGKAP</label>
-      <input type="text" id="inputNama" placeholder="cth. Rizky Indra Permana" maxlength="32">
+      <input type="text" id="inputNama" placeholder="cth. Rizky Indra Permana" maxlength="30">
     </div>
-
     <div>
       <label>JABATAN</label>
-      <input type="text" id="inputJabatan" placeholder="cth. Ketua Umum" maxlength="20">
+      <input type="text" id="inputJabatan" placeholder="cth. Ketua Umum" maxlength="22">
     </div>
-
     <div>
       <label>GENERASI</label>
-      <input type="text" id="inputGenerasi" placeholder="cth. 2" maxlength="4">
+      <input type="text" id="inputGenerasi" placeholder="cth. 2" maxlength="5">
     </div>
-
     <div class="full">
       <label>TANGGAL LAHIR</label>
       <input type="text" id="inputTTL" placeholder="cth. 8 Juni 2007" maxlength="20">
     </div>
   </div>
-
   <button class="btn-generate" onclick="generatePoster()">GENERATE POSTER</button>
   <button class="btn-download" id="btnDownload" onclick="downloadPoster()">↓ DOWNLOAD PNG</button>
 </div>
 
-<!-- PREVIEW -->
-<div class="poster-wrapper">
-  <div class="poster-placeholder" id="placeholder">
-    <div class="ph-icon">🎂</div>
+<div class="poster-wrap">
+  <div class="placeholder" id="placeholder">
+    <span>🎂</span>
     <p>PREVIEW POSTER</p>
   </div>
-  <canvas id="poster-canvas" width="1080" height="1920" style="display:none;"></canvas>
+  <canvas id="poster-canvas" width="1080" height="1920"></canvas>
 </div>
 
 <script>
+// ─── constants ────────────────────────────────────────────
 const W = 1080, H = 1920;
-let memberPhoto = null;
-let kakMascotImg = null, dokterMascotImg = null;
+let memberPhoto = null, kakImg = null, dokterImg = null;
 
-// ── Load mascot images on startup ──────────────────────────
-// Paths relative to where the HTML is served.
-// Put kak-taksaka.png and dokter-taksaka.png in the same folder.
+// ─── load mascots ─────────────────────────────────────────
 function loadImg(src) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
-    img.src = src;
+  return new Promise(res => {
+    const i = new Image(); i.crossOrigin = 'anonymous';
+    i.onload = () => res(i); i.onerror = () => res(null); i.src = src;
   });
 }
+Promise.all([loadImg('kak.png'), loadImg('dokter.png')])
+  .then(([k, d]) => { kakImg = k; dokterImg = d; });
 
-(async () => {
-  [kakMascotImg, dokterMascotImg] = await Promise.all([
-    loadImg('kak-taksaka.png'),
-    loadImg('dokter-taksaka.png'),
-  ]);
-})();
-
-// ── Photo upload preview ───────────────────────────────────
-document.getElementById('photoInput').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+// ─── photo upload ─────────────────────────────────────────
+document.getElementById('photoInput').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = (ev) => {
-    memberPhoto = new Image();
-    memberPhoto.onload = () => {
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      memberPhoto = img;
       const prev = document.getElementById('photoPreview');
-      prev.src = ev.target.result;
-      prev.style.display = 'block';
+      prev.src = ev.target.result; prev.style.display = 'block';
       document.getElementById('uploadLabel').textContent = file.name;
     };
-    memberPhoto.src = ev.target.result;
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 });
 
-// ── Helpers ────────────────────────────────────────────────
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1,3),16),
-        g = parseInt(hex.slice(3,5),16),
-        b = parseInt(hex.slice(5,7),16);
-  return [r,g,b];
-}
-
-function makeGold(ctx, x1, y1, x2, y2) {
-  const g = ctx.createLinearGradient(x1, y1, x2, y2);
-  g.addColorStop(0,   '#3d2900');
-  g.addColorStop(0.25,'#c8960c');
-  g.addColorStop(0.5, '#fffacd');
-  g.addColorStop(0.75,'#ffd700');
-  g.addColorStop(1,   '#3d2900');
-  return g;
-}
-
-function makeNameGrad(ctx, x1, x2, y) {
-  const g = ctx.createLinearGradient(x1, y, x2, y);
-  g.addColorStop(0,   '#cc2222');
-  g.addColorStop(0.5, '#ffd700');
-  g.addColorStop(1,   '#cc2222');
-  return g;
-}
-
-function roundRect(ctx, x, y, w, h, r) {
+// ─── canvas helpers ───────────────────────────────────────
+function rr(ctx, x, y, w, h, r) {
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
   ctx.closePath();
 }
 
-function wrapLines(text, maxW, ctx) {
+function goldGrad(ctx, x1, y1, x2, y2) {
+  const g = ctx.createLinearGradient(x1, y1, x2, y2);
+  g.addColorStop(0,    '#2e1a00');
+  g.addColorStop(0.25, '#c8960c');
+  g.addColorStop(0.5,  '#fffacd');
+  g.addColorStop(0.75, '#ffd700');
+  g.addColorStop(1,    '#2e1a00');
+  return g;
+}
+
+function goldLine(ctx, x, y, w, alpha=1, h=2.5) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = goldGrad(ctx, x, y, x+w, y);
+  ctx.fillRect(x, y, w, h);
+  ctx.restore();
+}
+
+function goldBorder(ctx, x, y, w, h, r, lw=2) {
+  ctx.save();
+  ctx.strokeStyle = goldGrad(ctx, x, y, x+w, y+h);
+  ctx.lineWidth = lw;
+  rr(ctx, x, y, w, h, r); ctx.stroke();
+  ctx.restore();
+}
+
+function glow(ctx, col, blur) { ctx.shadowColor = col; ctx.shadowBlur = blur; }
+function noGlow(ctx)           { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; }
+
+// cover-fit an image into a box, clipped to rounded rect
+function drawImgCover(ctx, img, x, y, w, h, r, posY=0.15) {
+  ctx.save();
+  rr(ctx, x, y, w, h, r); ctx.clip();
+  if (img) {
+    const iR = img.width / img.height, bR = w / h;
+    let dw, dh, dx, dy;
+    if (iR > bR) { dh = h; dw = dh * iR; dx = x+(w-dw)/2; dy = y; }
+    else         { dw = w; dh = dw/iR;   dx = x; dy = y+(h-dh)*posY; }
+    ctx.drawImage(img, dx, dy, dw, dh);
+  } else {
+    ctx.fillStyle = '#1a1208'; ctx.fillRect(x, y, w, h);
+    ctx.font = '80px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='#3d2900'; ctx.fillText('?', x+w/2, y+h/2);
+  }
+  ctx.restore();
+}
+
+// wrap text into lines that fit maxW
+function wrapText(ctx, text, maxW) {
   const words = text.split(' ');
-  const lines = [];
-  let cur = '';
+  const lines = []; let cur = '';
   for (const w of words) {
-    const test = cur ? cur + ' ' + w : w;
-    if (ctx.measureText(test).width > maxW) {
-      if (cur) lines.push(cur);
-      cur = w;
-    } else { cur = test; }
+    const test = cur ? cur+' '+w : w;
+    if (ctx.measureText(test).width > maxW) { if (cur) lines.push(cur); cur = w; }
+    else cur = test;
   }
   if (cur) lines.push(cur);
   return lines;
 }
 
-function drawGoldLine(ctx, x, y, w, alpha=1) {
-  const g = makeGold(ctx, x, y, x+w, y);
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = g;
-  ctx.fillRect(x, y, w, 2);
-  ctx.globalAlpha = 1;
-}
-
-function drawGoldBorder(ctx, x, y, w, h, r, lineW=2) {
-  const g = makeGold(ctx, x, y, x+w, y+h);
-  ctx.strokeStyle = g;
-  ctx.lineWidth = lineW;
-  roundRect(ctx, x, y, w, h, r);
-  ctx.stroke();
-}
-
-function applyGlow(ctx, color, blur) {
-  ctx.shadowColor = color;
-  ctx.shadowBlur  = blur;
-}
-function clearGlow(ctx) { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; }
-
-// ── AI greeting stubs ──────────────────────────────────────
-// Replace these with real Gemini calls if running server-side.
+// AI greeting stubs — replace with real Gemini calls
 function getKakGreeting(nama, jabatan, gen) {
   return `Selamat ulang tahun, ${nama}! Semoga langkahmu di Pagaska selalu mantap, membawa perubahan positif, dan menjadi teladan bagi generasi penerus.`;
 }
@@ -387,358 +251,251 @@ function getDokterGreeting(nama, jabatan, gen) {
   return `Selamat ulang tahun, ${nama}. Semoga selalu diberi kesehatan, kelancaran dalam setiap rencana, dan keberkahan di setiap usaha.`;
 }
 
-// ── DRAW MEMBER PHOTO ──────────────────────────────────────
-function drawMemberPhoto(ctx, img, x, y, w, h, r) {
-  // Rounded clip
-  ctx.save();
-  roundRect(ctx, x, y, w, h, r);
-  ctx.clip();
-  if (img) {
-    // cover-fit
-    const iR = img.width / img.height;
-    const bR = w / h;
-    let sw, sh, sx, sy;
-    if (iR > bR) { sh = img.height; sw = sh * bR; sx = (img.width - sw) / 2; sy = 0; }
-    else         { sw = img.width;  sh = sw / bR; sx = 0; sy = (img.height - sh) / 5; }
-    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
-  } else {
-    ctx.fillStyle = '#1a1510';
-    ctx.fillRect(x, y, w, h);
-    ctx.fillStyle = '#3d2900';
-    ctx.font = '80px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('👤', x + w/2, y + h/2);
-  }
-  ctx.restore();
-
-  // Gold border (drawn as stroked roundRect outside clip)
-  const pad = 10, brad = r + 6;
-  // outer glow
-  ctx.save();
-  applyGlow(ctx, '#c8960c', 16);
-  const gBorder = makeGold(ctx, x-pad, y-pad, x+w+pad, y+h+pad);
-  ctx.strokeStyle = gBorder;
-  ctx.lineWidth = 3;
-  roundRect(ctx, x-pad, y-pad, w+pad*2, h+pad*2, brad);
-  ctx.stroke();
-  clearGlow(ctx);
-  // inner accent
-  ctx.strokeStyle = 'rgba(255,250,205,0.25)';
-  ctx.lineWidth = 1;
-  roundRect(ctx, x-pad+5, y-pad+5, w+pad*2-10, h+pad*2-10, brad-4);
-  ctx.stroke();
-  ctx.restore();
-}
-
-// ── DRAW MASCOT ────────────────────────────────────────────
-function drawMascot(ctx, img, x, y, w, h) {
-  ctx.save();
-  // box bg
-  roundRect(ctx, x, y, w, h, 12);
-  ctx.fillStyle = 'rgba(12,10,8,0.72)';
-  ctx.fill();
-  drawGoldBorder(ctx, x, y, w, h, 12, 1.5);
-
-  if (img) {
-    // cover-fit inside box
-    const iR = img.width / img.height;
-    const bR = w / h;
-    let dw, dh, dx, dy;
-    if (iR > bR) { dh = h; dw = dh * iR; dx = x + (w - dw) / 2; dy = y; }
-    else         { dw = w; dh = dw / iR; dx = x; dy = y + (h - dh) * 0.1; }
-    ctx.save();
-    roundRect(ctx, x, y, w, h, 12);
-    ctx.clip();
-    ctx.drawImage(img, dx, dy, dw, dh);
-    ctx.restore();
-  } else {
-    ctx.fillStyle = '#3d2900';
-    ctx.font = '60px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🤖', x + w/2, y + h/2);
-  }
-  ctx.restore();
-}
-
-// ── DRAW BUBBLE ────────────────────────────────────────────
-function drawBubble(ctx, x, y, w, h, title, lines, signText, bgColor) {
-  ctx.save();
-  // bg
-  roundRect(ctx, x, y, w, h, 14);
-  ctx.fillStyle = bgColor;
-  ctx.fill();
-  drawGoldBorder(ctx, x, y, w, h, 14, 1.5);
-
-  // title
-  ctx.fillStyle = '#ffd700';
-  ctx.font = "600 26px 'Cinzel', serif";
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  applyGlow(ctx, '#c8960c', 8);
-  ctx.fillText(title, x + w/2, y + 22);
-  clearGlow(ctx);
-
-  // divider
-  drawGoldLine(ctx, x + 28, y + 60, w - 56, 0.4);
-
-  // lines
-  ctx.font = "400 22px 'Cormorant Garamond', serif";
-  ctx.fillStyle = '#dddddd';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  const lh = 32;
-  lines.forEach((l, i) => ctx.fillText(l, x + w/2, y + 76 + i * lh));
-
-  // sign
-  ctx.font = "italic 300 19px 'Cormorant Garamond', serif";
-  ctx.fillStyle = '#777';
-  ctx.fillText(signText, x + w/2, y + h - 32);
-  ctx.restore();
-}
-
-// ── MAIN DRAW ──────────────────────────────────────────────
+// ─── MAIN DRAW ────────────────────────────────────────────
 async function generatePoster() {
-  const nama     = document.getElementById('inputNama').value.trim()     || 'NAMA LENGKAP';
+  const nama     = document.getElementById('inputNama').value.trim()     || 'Nama Lengkap';
   const jabatan  = document.getElementById('inputJabatan').value.trim()  || 'Jabatan';
-  const generasi = document.getElementById('inputGenerasi').value.trim() || '?';
+  const generasi = document.getElementById('inputGenerasi').value.trim() || '-';
   const ttl      = document.getElementById('inputTTL').value.trim()      || '—';
-
   const kakMsg    = getKakGreeting(nama, jabatan, generasi);
   const dokterMsg = getDokterGreeting(nama, jabatan, generasi);
 
   const canvas = document.getElementById('poster-canvas');
   const ctx    = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
 
-  // ── Background ────────────────────────────────────────────
-  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-  bgGrad.addColorStop(0,    '#07070d');
-  bgGrad.addColorStop(0.45, '#130500');
-  bgGrad.addColorStop(1,    '#060011');
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, W, H);
+  // ── 1. BACKGROUND ────────────────────────────────────────
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0,    '#07070d');
+  bg.addColorStop(0.42, '#130500');
+  bg.addColorStop(1,    '#060010');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-  // ambient circles
-  function drawAmbient(cx, cy, r, c, a) {
-    const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-    rg.addColorStop(0, c);
-    rg.addColorStop(1, 'transparent');
-    ctx.globalAlpha = a;
-    ctx.fillStyle = rg;
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
-    ctx.globalAlpha = 1;
+  function ambient(cx, cy, r, col, a) {
+    const rg = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+    rg.addColorStop(0, col); rg.addColorStop(1,'transparent');
+    ctx.save(); ctx.globalAlpha=a; ctx.fillStyle=rg;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
-  drawAmbient(160, 380,  440, '#ff1100', 0.024);
-  drawAmbient(920, 820,  360, '#ffd700', 0.022);
-  drawAmbient(540, 1380, 580, '#6b0000', 0.030);
+  ambient(160,  380, 420, '#ff1100', 0.025);
+  ambient(920,  820, 340, '#ffd700', 0.020);
+  ambient(540, 1400, 560, '#6b0000', 0.030);
 
-  // ── Top border ────────────────────────────────────────────
-  drawGoldLine(ctx, 40, 44, W-80);
-  drawGoldLine(ctx, 40, 50, W-80, 0.28);
+  // ── 2. TOP BORDER ────────────────────────────────────────
+  const PAD = 44;
+  goldLine(ctx, PAD, 42, W-PAD*2, 1,   3);
+  goldLine(ctx, PAD, 48, W-PAD*2, 0.28, 1);
 
-  // ── HEADER ───────────────────────────────────────────────
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'alphabetic';
+  // ── 3. HEADER ────────────────────────────────────────────
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
 
-  // PAGASKA
-  ctx.font = "700 34px 'Cinzel Decorative', serif";
+  // ✦ PAGASKA ✦
+  ctx.font = "700 36px 'Cinzel Decorative', serif";
   ctx.fillStyle = '#c8960c';
-  applyGlow(ctx, '#c8960c', 14);
-  ctx.letterSpacing = '8px';
-  ctx.fillText('✦  PAGASKA  ✦', W/2, 108);
-  clearGlow(ctx);
+  glow(ctx, '#c8960c', 16);
+  ctx.fillText('✦  PAGASKA  ✦', W/2, 110);
+  noGlow(ctx);
 
-  // Paskibra subtitle
-  ctx.font = "400 24px 'EB Garamond', serif";
-  ctx.fillStyle = '#bbbbbb';
+  // Paskibra Gala Taksaka
+  ctx.font = "400 23px 'EB Garamond', serif";
+  ctx.fillStyle = '#aaaaaa';
   ctx.fillText('Paskibra Gala Taksaka', W/2, 148);
 
-  // HBD line
-  ctx.font = "600 32px 'Cinzel', serif";
+  // Selamat Ulang Tahun
+  ctx.font = "700 34px 'Cinzel', serif";
   ctx.fillStyle = '#ffd700';
-  applyGlow(ctx, '#ffd700', 18);
+  glow(ctx, '#ffd700', 20);
   ctx.fillText('👑  Selamat Ulang Tahun  👑', W/2, 196);
-  clearGlow(ctx);
+  noGlow(ctx);
 
-  // Divider below header
-  drawGoldLine(ctx, 180, 214, W-360, 0.45);
+  goldLine(ctx, 200, 214, W-400, 0.45);
 
-  // ── PHOTO ────────────────────────────────────────────────
-  const fotoW = 400, fotoH = 440, fotoR = 24;
-  const fotoX = (W - fotoW) / 2;
-  const fotoY = 236;
-  drawMemberPhoto(ctx, memberPhoto, fotoX, fotoY, fotoW, fotoH, fotoR);
+  // ── 4. MEMBER PHOTO ──────────────────────────────────────
+  const FW = 420, FH = 460, FR = 22;
+  const FX = (W-FW)/2, FY = 232;
 
-  const afterFoto = fotoY + fotoH + 10; // bottom of border
+  drawImgCover(ctx, memberPhoto, FX, FY, FW, FH, FR, 0.1);
 
-  // Generasi badge
-  drawGoldLine(ctx, 180, afterFoto + 30, W-360, 0.38);
-  ctx.font = "400 italic 22px 'EB Garamond', serif";
-  ctx.fillStyle = '#999';
-  ctx.letterSpacing = '3px';
-  ctx.fillText(`Generasi: ${generasi}`, W/2, afterFoto + 24);
+  // Gold border around photo
+  const BP = 11, BR = FR+7;
+  ctx.save();
+  glow(ctx, '#c8960c', 18);
+  ctx.strokeStyle = goldGrad(ctx, FX-BP, FY-BP, FX+FW+BP, FY+FH+BP);
+  ctx.lineWidth = 3.5;
+  rr(ctx, FX-BP, FY-BP, FW+BP*2, FH+BP*2, BR); ctx.stroke();
+  noGlow(ctx);
+  ctx.strokeStyle = 'rgba(255,250,205,0.22)'; ctx.lineWidth = 1;
+  rr(ctx, FX-BP+5, FY-BP+5, FW+BP*2-10, FH+BP*2-10, BR-4); ctx.stroke();
+  ctx.restore();
 
-  // ── NAME BOX ──────────────────────────────────────────────
-  const nbX = 60, nbY = afterFoto + 56, nbW = W-120, nbH = 148, nbR = 10;
-  roundRect(ctx, nbX, nbY, nbW, nbH, nbR);
-  ctx.fillStyle = 'rgba(10,8,6,0.82)';
-  ctx.fill();
-  drawGoldBorder(ctx, nbX, nbY, nbW, nbH, nbR, 2);
-  // inner subtle line
-  ctx.strokeStyle = 'rgba(122,85,0,0.3)';
-  ctx.lineWidth = 1;
-  roundRect(ctx, nbX+6, nbY+6, nbW-12, nbH-12, nbR-4);
-  ctx.stroke();
+  const AFTER_FOTO = FY + FH + BP + 4; // ~707
 
-  // "NAMA LENGKAP" label
-  ctx.font = "600 18px 'Cinzel', serif";
-  ctx.fillStyle = '#7a5500';
-  ctx.letterSpacing = '5px';
-  ctx.fillText('NAMA LENGKAP', W/2, nbY + 30);
+  // ── 5. GENERASI BADGE ────────────────────────────────────
+  ctx.font = "italic 400 24px 'EB Garamond', serif";
+  ctx.fillStyle = '#888888';
+  ctx.fillText('Generasi: ' + generasi, W/2, AFTER_FOTO + 34);
+  goldLine(ctx, 220, AFTER_FOTO + 44, W-440, 0.35);
 
-  // Name
-  // auto-size font
-  let nameFontSize = 62;
-  ctx.font = `900 ${nameFontSize}px 'Cinzel', serif`;
-  while (ctx.measureText(nama.toUpperCase()).width > nbW - 60 && nameFontSize > 30) {
-    nameFontSize -= 2;
-    ctx.font = `900 ${nameFontSize}px 'Cinzel', serif`;
+  // ── 6. NAME BOX ──────────────────────────────────────────
+  const NB_Y = AFTER_FOTO + 62;
+  const NB_H = 160, NB_X = 56, NB_W = W-112, NB_R = 10;
+
+  rr(ctx, NB_X, NB_Y, NB_W, NB_H, NB_R);
+  ctx.fillStyle = 'rgba(8,6,4,0.85)'; ctx.fill();
+  goldBorder(ctx, NB_X, NB_Y, NB_W, NB_H, NB_R, 2);
+  ctx.save(); ctx.strokeStyle = 'rgba(90,60,0,0.28)'; ctx.lineWidth=1;
+  rr(ctx, NB_X+6, NB_Y+6, NB_W-12, NB_H-12, NB_R-3); ctx.stroke(); ctx.restore();
+
+  // small "NAMA LENGKAP" label
+  ctx.font = "600 16px 'Cinzel', serif";
+  ctx.fillStyle = '#5a3d00';
+  ctx.fillText('NAMA LENGKAP', W/2, NB_Y + 30);
+
+  // auto-fit name font
+  let nfs = 66;
+  ctx.font = `900 ${nfs}px 'Cinzel', serif`;
+  while (ctx.measureText(nama.toUpperCase()).width > NB_W - 80 && nfs > 28) {
+    nfs -= 2; ctx.font = `900 ${nfs}px 'Cinzel', serif`;
   }
-  const nameGrad = makeNameGrad(ctx, nbX + 30, nbX + nbW - 30, nbY + 80);
+  const nameGrad = ctx.createLinearGradient(NB_X+40, 0, NB_X+NB_W-40, 0);
+  nameGrad.addColorStop(0,   '#cc1111');
+  nameGrad.addColorStop(0.5, '#ffd700');
+  nameGrad.addColorStop(1,   '#cc1111');
   ctx.fillStyle = nameGrad;
-  applyGlow(ctx, '#cc2222', 10);
-  ctx.fillText(nama.toUpperCase(), W/2, nbY + 86);
-  clearGlow(ctx);
+  glow(ctx, '#aa1111', 12);
+  ctx.fillText(nama.toUpperCase(), W/2, NB_Y + 92);
+  noGlow(ctx);
 
-  // Divider inside box
-  drawGoldLine(ctx, nbX+40, nbY+100, nbW-80, 0.35);
+  goldLine(ctx, NB_X+50, NB_Y+106, NB_W-100, 0.3, 1);
 
-  // Jabatan label + value
+  // Jabatan label
   ctx.font = "400 20px 'EB Garamond', serif";
-  ctx.fillStyle = '#888';
-  ctx.letterSpacing = '3px';
-  ctx.fillText('Jabatan', W/2, nbY + 120);
+  ctx.fillStyle = '#777'; ctx.fillText('Jabatan', W/2, NB_Y + 126);
 
-  ctx.font = "600 30px 'Cinzel', serif";
+  // Jabatan value — auto-fit
+  let jfs = 32;
+  ctx.font = `600 ${jfs}px 'Cinzel', serif`;
+  while (ctx.measureText(jabatan.toUpperCase()).width > NB_W - 80 && jfs > 18) {
+    jfs -= 2; ctx.font = `600 ${jfs}px 'Cinzel', serif`;
+  }
   ctx.fillStyle = '#ffffff';
-  ctx.letterSpacing = '2px';
-  ctx.fillText(jabatan.toUpperCase(), W/2, nbY + 148);
+  ctx.fillText(jabatan.toUpperCase(), W/2, NB_Y + 155);
 
-  // ── ICON ROW ──────────────────────────────────────────────
-  const icY = nbY + nbH + 52;
-  ctx.font = '44px serif';
-  ctx.textBaseline = 'middle';
+  // ── 7. ICON ROW ──────────────────────────────────────────
+  const IC_Y = NB_Y + NB_H + 58;
   const icons = ['🏃','🔥','🛡️','👥','📖'];
-  const iconSpacing = 80;
-  const totalIconW = icons.length * iconSpacing;
-  let ix = (W - totalIconW) / 2 + iconSpacing/2;
-  icons.forEach(ic => {
-    ctx.fillText(ic, ix, icY);
-    ix += iconSpacing;
-  });
+  ctx.font = '46px serif'; ctx.textBaseline = 'middle';
+  const iSp = 84, iTot = icons.length * iSp;
+  let ix = (W - iTot) / 2 + iSp/2;
+  icons.forEach(ic => { ctx.fillText(ic, ix, IC_Y); ix += iSp; });
   ctx.textBaseline = 'alphabetic';
 
-  // Divider above mascots
-  drawGoldLine(ctx, 40, icY + 40, W-80, 0.35);
+  goldLine(ctx, 44, IC_Y + 40, W-88, 0.32);
 
-  // ── MASCOTS ───────────────────────────────────────────────
-  const mascotLabelY = icY + 72;
-  const mascotBoxY   = mascotLabelY + 22;
-  const boxW = 460, boxH = 470;
-  const leftX  = 30;
-  const rightX = W - 30 - boxW;
+  // ── 8. MASCOTS ───────────────────────────────────────────
+  const ML_Y  = IC_Y + 74;   // mascot label Y
+  const MB_Y  = ML_Y + 24;   // mascot box top
+  const MB_W  = 476, MB_H = 480, MB_R = 12;
+  const LX = 28, RX = W - 28 - MB_W;
 
-  // Labels
-  ctx.font = "600 26px 'Cinzel', serif";
-  ctx.fillStyle = '#ffd700';
-  ctx.letterSpacing = '1px';
-  applyGlow(ctx, '#c8960c', 8);
-  ctx.fillText('👑  Kak Taksaka',    leftX  + boxW/2, mascotLabelY);
-  ctx.fillText('👑  Dokter Taksaka', rightX + boxW/2, mascotLabelY);
-  clearGlow(ctx);
+  // labels
+  ctx.font = "600 26px 'Cinzel', serif"; ctx.fillStyle = '#ffd700';
+  glow(ctx, '#c8960c', 10);
+  ctx.fillText('👑  Kak Taksaka',    LX + MB_W/2, ML_Y);
+  ctx.fillText('👑  Dokter Taksaka', RX + MB_W/2, ML_Y);
+  noGlow(ctx);
 
-  drawMascot(ctx, kakMascotImg,    leftX,  mascotBoxY, boxW, boxH);
-  drawMascot(ctx, dokterMascotImg, rightX, mascotBoxY, boxW, boxH);
+  function drawMascotBox(img, bx, by) {
+    rr(ctx, bx, by, MB_W, MB_H, MB_R);
+    ctx.fillStyle = 'rgba(10,8,5,0.75)'; ctx.fill();
+    goldBorder(ctx, bx, by, MB_W, MB_H, MB_R, 1.5);
+    drawImgCover(ctx, img, bx, by, MB_W, MB_H, MB_R, 0.05);
+  }
+  drawMascotBox(kakImg,    LX, MB_Y);
+  drawMascotBox(dokterImg, RX, MB_Y);
 
-  // ── SPEECH BUBBLES ────────────────────────────────────────
-  const bubbleY   = mascotBoxY + boxH + 20;
-  const bubbleH   = 220;
-  const bubbleW   = boxW;
+  // ── 9. SPEECH BUBBLES ────────────────────────────────────
+  const BU_Y = MB_Y + MB_H + 18;
+  const BU_W = MB_W, BU_H = 236;
 
-  ctx.font = "400 22px 'Cormorant Garamond', serif";
-  const kakLines    = wrapLines(kakMsg,    bubbleW - 60, ctx);
-  const dokterLines = wrapLines(dokterMsg, bubbleW - 60, ctx);
+  function drawBubble(bx, by, title, msg, sign, bgCol) {
+    rr(ctx, bx, by, BU_W, BU_H, 14);
+    ctx.fillStyle = bgCol; ctx.fill();
+    goldBorder(ctx, bx, by, BU_W, BU_H, 14, 1.5);
 
-  drawBubble(ctx, leftX,  bubbleY, bubbleW, bubbleH,
-    'ucapan Kak Taksaka', kakLines, '– Kak Taksaka', '#1a0404');
-  drawBubble(ctx, rightX, bubbleY, bubbleW, bubbleH,
-    'ucapan Dokter Taksaka', dokterLines, '– Dokter Taksaka', '#001404');
+    // title
+    ctx.font = "600 24px 'Cinzel', serif"; ctx.fillStyle = '#ffd700';
+    glow(ctx, '#c8960c', 8);
+    ctx.fillText(title, bx+BU_W/2, by+32); noGlow(ctx);
 
-  // ── FOOTER STRIP ─────────────────────────────────────────
-  const ftDivY = bubbleY + bubbleH + 28;
-  drawGoldLine(ctx, 40, ftDivY, W-80, 0.3);
+    goldLine(ctx, bx+26, by+44, BU_W-52, 0.38, 1);
 
-  // Footer date + quote box
-  const ftBoxY = ftDivY + 20;
-  const ftBoxH = 100;
-  roundRect(ctx, 40, ftBoxY, W-80, ftBoxH, 10);
-  ctx.fillStyle = 'rgba(12,10,6,0.6)';
-  ctx.fill();
-  drawGoldBorder(ctx, 40, ftBoxY, W-80, ftBoxH, 10, 1);
+    // message lines
+    ctx.font = "400 22px 'Cormorant Garamond', serif"; ctx.fillStyle = '#d8d8d8';
+    ctx.textBaseline = 'top';
+    const lines = wrapText(ctx, msg, BU_W - 72);
+    const lh = 30;
+    lines.forEach((l, i) => ctx.fillText(l, bx+BU_W/2, by+58+i*lh));
+    ctx.textBaseline = 'alphabetic';
 
-  // Calendar icon + date
-  ctx.font = '38px serif';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('📅', 80, ftBoxY + ftBoxH/2);
+    // sign
+    ctx.font = "italic 300 19px 'Cormorant Garamond', serif"; ctx.fillStyle = '#666';
+    ctx.fillText(sign, bx+BU_W/2, by+BU_H-20);
+  }
+
+  drawBubble(LX, BU_Y, 'ucapan Kak Taksaka',    kakMsg,    '– Kak Taksaka',    '#180404');
+  drawBubble(RX, BU_Y, 'ucapan Dokter Taksaka', dokterMsg, '– Dokter Taksaka', '#001605');
+
+  // ── 10. FOOTER BOX ───────────────────────────────────────
+  const FT_Y = BU_Y + BU_H + 26;
+  const FT_H = 104;
+  goldLine(ctx, 44, FT_Y - 4, W-88, 0.28);
+  rr(ctx, 44, FT_Y, W-88, FT_H, 10);
+  ctx.fillStyle = 'rgba(10,8,4,0.65)'; ctx.fill();
+  goldBorder(ctx, 44, FT_Y, W-88, FT_H, 10, 1.2);
+
+  // calendar icon
+  ctx.font = '40px serif'; ctx.textBaseline = 'middle';
+  ctx.fillText('📅', 88, FT_Y + FT_H/2);
   ctx.textBaseline = 'alphabetic';
 
-  ctx.font = "600 28px 'Cinzel', serif";
-  ctx.fillStyle = '#ffd700';
+  // TTL text
+  ctx.font = "600 28px 'Cinzel', serif"; ctx.fillStyle = '#ffd700';
   ctx.textAlign = 'left';
-  ctx.fillText(ttl, 134, ftBoxY + 42);
+  ctx.fillText(ttl, 142, FT_Y + 44);
 
-  // Vertical separator
-  ctx.strokeStyle = 'rgba(122,85,0,0.5)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(330, ftBoxY + 16); ctx.lineTo(330, ftBoxY + ftBoxH - 16);
-  ctx.stroke();
+  // vertical sep
+  ctx.save(); ctx.strokeStyle = 'rgba(100,70,0,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(340, FT_Y+16); ctx.lineTo(340, FT_Y+FT_H-16); ctx.stroke();
+  ctx.restore();
 
-  // Quote
-  ctx.font = "italic 22px 'Cormorant Garamond', serif";
-  ctx.fillStyle = '#cccccc';
-  ctx.textAlign = 'left';
-  ctx.fillText('Semoga panjang umur,',       350, ftBoxY + 38);
-  ctx.fillText('sehat selalu, dan sukses terus!', 350, ftBoxY + 68);
+  // quote text
+  ctx.font = "italic 400 22px 'Cormorant Garamond', serif"; ctx.fillStyle = '#bcbcbc';
+  ctx.fillText('Semoga panjang umur,',            358, FT_Y + 40);
+  ctx.fillText('sehat selalu, dan sukses terus!', 358, FT_Y + 70);
 
-  // Cake icon
-  ctx.font = '38px serif';
-  ctx.textAlign = 'right';
-  ctx.fillText('🎂', W - 68, ftBoxY + ftBoxH/2 + 10);
-  ctx.textBaseline = 'alphabetic';
+  // cake icon
+  ctx.font = '38px serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('🎂', W-68, FT_Y + FT_H/2);
+  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'center';
 
-  // ── LOGO FOOTER ───────────────────────────────────────────
-  ctx.textAlign = 'center';
-  const logoY = ftBoxY + ftBoxH + 40;
-  ctx.font = "700 26px 'Cinzel Decorative', serif";
-  ctx.fillStyle = '#c8960c';
-  ctx.letterSpacing = '8px';
-  applyGlow(ctx, '#c8960c', 14);
-  ctx.fillText('✦  PAGASKA  ✦', W/2, logoY);
-  clearGlow(ctx);
+  // ── 11. FOOTER LOGO ──────────────────────────────────────
+  const LOGO_Y = FT_Y + FT_H + 44;
+  ctx.font = "700 26px 'Cinzel Decorative', serif"; ctx.fillStyle = '#c8960c';
+  glow(ctx, '#c8960c', 16);
+  ctx.fillText('✦  PAGASKA  ✦', W/2, LOGO_Y);
+  noGlow(ctx);
 
-  // Bottom border
-  drawGoldLine(ctx, 40, H-56, W-80);
-  drawGoldLine(ctx, 40, H-50, W-80, 0.28);
+  // bottom border
+  goldLine(ctx, PAD, H-56, W-PAD*2, 1,   3);
+  goldLine(ctx, PAD, H-50, W-PAD*2, 0.28, 1);
 
-  // ── Show canvas ───────────────────────────────────────────
+  // ── show ─────────────────────────────────────────────────
   document.getElementById('placeholder').style.display = 'none';
-  canvas.style.display = 'block';
-  canvas.style.width   = '480px';
-
-  const dl = document.getElementById('btnDownload');
-  dl.style.display = 'block';
+  const cv = document.getElementById('poster-canvas');
+  cv.style.display = 'block';
+  cv.style.width   = '360px';
+  document.getElementById('btnDownload').style.display = 'block';
 }
 
 function downloadPoster() {
